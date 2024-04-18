@@ -10,9 +10,9 @@ function handleFormSubmit(event){
     event.preventDefault();
     const cityName = cityInput.val().trim();
     console.log(cityName);
-    cityInput.empty();
+    cityInput.val("");
 
-    let url = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=5&appid=26e6654053a3f70f24251088f54026d0`
+    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=5&appid=26e6654053a3f70f24251088f54026d0`
 
     fetch(url).then(function (response){
         if(response.ok){
@@ -29,15 +29,8 @@ function handleFormSubmit(event){
                 };
                 saveCities(city);
                 displayCities();
-
-                url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0`
-                fetch(url).then(function (response){
-                    if(response.ok){
-                        response.json().then(function (data){
-                            console.log(data);
-                        });
-                    }
-                });
+                displayWeather(city.lat, city.lon);
+                
             });
         }
     });
@@ -65,9 +58,10 @@ function saveCities(cities){
 function displayCities(){
     cityHistory.empty();
     const tempCities = getCities();
-    tempCities.forEach((city) => {
+    tempCities.forEach((city, i) => {
         const cityCard = $('<div>');
-        cityCard.attr('class', 'text-align-center');
+        cityCard.attr('class', 'city-card text-align-center');
+        cityCard.attr('data-id', i);
         cityCard.text(city.name);
         cityHistory.append(cityCard);
     });
@@ -77,12 +71,25 @@ function displayCities(){
 //logic to check weather and use correct icon on card during creation
 
 
-
-
 //display city current weather
+function displayWeather(lat, lon){
+    const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0`
+    fetch(url).then(function (response){
+        if(response.ok){
+            response.json().then(function (data){
+                console.log(data);
+            });
+        }
+    });
+}
 //display city 5 day forecast
 
 
 //event listener for city-history element / delegate to parent, on city click / call displayWeather
 
 cityForm.on('submit', handleFormSubmit);
+cityHistory.on('click', '.city-card', function(){
+    savedCityID = $(this).attr('data-id');
+    savedCities = getCities();
+    displayWeather(savedCities[savedCityID].lat, savedCities[savedCityID].lon);
+});
