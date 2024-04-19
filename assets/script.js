@@ -72,12 +72,12 @@ function displayWeather(lat, lon){
     fetch(url).then(function (response){
         if(response.ok){
             response.json().then(function (data){
-                console.log(data);
+                currentDisplay.empty();
                 const weatherCard = $('<div>');
                 const cityName = $('<h2>');
                 const curDate = dayjs().format("M/DD/YYYY");
                 const weatherIcon = $('<img>');
-                weatherIcon.attr('src', `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`)
+                weatherIcon.attr('src', `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`);
                 cityName.text(data.name + " (" + curDate + ")");
                 cityName.append(weatherIcon);
                 const curTemp = $('<p>');
@@ -100,23 +100,42 @@ function displayForecast(lat, lon){
     fetch(url).then(function (response){
         if(response.ok){
             response.json().then(function (data){
-                console.log(data);
+                let dayOffset = 0;
+                forecastDisplay.empty();
                 for(i = 0; i < 5; i++){
                     const forecastCard = $('<div>');
-                    const forecastDate = dayjs().add(i, 'day').format("M/DD/YYYY");
-                    
+                    const forecastDate = $('<p>');
+                    forecastDate.text(dayjs().add(i + 1, 'day').format("M/DD/YYYY"));
+                    const weatherIcon = $('<img>');
+                    weatherIcon.attr('src', `https://openweathermap.org/img/wn/${data.list[dayOffset].weather[0].icon}@2x.png`);
+                    const forecastTemp = $('<p>');
+                    forecastTemp.text("Temp: " + data.list[dayOffset].main.temp + " °F")
+                    const forecastWind = $('<p>');
+                    forecastWind.text("Wind: " + data.list[dayOffset].wind.speed + " MPH");
+                    const forecastHumidity = $('<p>');
+                    forecastHumidity.text("Humidity: " + data.list[dayOffset].main.humidity + " %");
+                    dayOffset = dayOffset + 8;
+
+                    forecastCard.append(forecastDate, weatherIcon, forecastTemp, forecastWind, forecastHumidity);
+                    forecastDisplay.append(forecastCard);
                 }
             });
         }
     });
 }
 
-//event listener for city-history element / delegate to parent, on city click / call displayWeather
-
+//event listener for form submit
 cityForm.on('submit', handleFormSubmit);
+
+//event listener for city-history element / delegate to parent, on city click / call displayWeather+displayForecast
 cityHistory.on('click', '.city-card', function(){
     cityID = $(this).attr('data-id');
     savedCities = getCities();
+    currentDisplay.empty();
+    forecastDisplay.empty();
     displayWeather(savedCities[cityID].lat, savedCities[cityID].lon);
     displayForecast(savedCities[cityID].lat, savedCities[cityID].lon);
 });
+
+//on page load call displayCity
+window.onload = displayCities;
