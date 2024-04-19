@@ -9,35 +9,24 @@ const forecastDisplay = $('#weather-forecast');
 function handleFormSubmit(event){
     event.preventDefault();
     const cityName = cityInput.val().trim();
-    console.log(cityName);
-    cityInput.empty();
-
-    let url = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=5&appid=26e6654053a3f70f24251088f54026d0`
-
+    if(cityName === ""){
+        return;
+    }
+    cityInput.val("");
+    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=5&appid=26e6654053a3f70f24251088f54026d0`
     fetch(url).then(function (response){
         if(response.ok){
             response.json().then(function (data){
-                const lat = data[0].lat;
-                console.log(lat);
-                const lon = data[0].lon;
-                console.log(lon);
-
                 const city = {
                     name: cityName,
-                    lat: lat,
-                    lon: lon,
+                    lat: data[0].lat,
+                    lon: data[0].lon,
                 };
                 saveCities(city);
                 displayCities();
-
-                url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0`
-                fetch(url).then(function (response){
-                    if(response.ok){
-                        response.json().then(function (data){
-                            console.log(data);
-                        });
-                    }
-                });
+                displayWeather(city.lat, city.lon);
+                displayForecast(city.lat, city.lon);
+                
             });
         }
     });
@@ -65,9 +54,10 @@ function saveCities(cities){
 function displayCities(){
     cityHistory.empty();
     const tempCities = getCities();
-    tempCities.forEach((city) => {
+    tempCities.forEach((city, i) => {
         const cityCard = $('<div>');
-        cityCard.attr('class', 'text-align-center');
+        cityCard.attr('class', 'city-card bg-secondary text-white text-center border border-light rounded');
+        cityCard.attr('data-id', i);
         cityCard.text(city.name);
         cityHistory.append(cityCard);
     });
@@ -77,12 +67,77 @@ function displayCities(){
 //logic to check weather and use correct icon on card during creation
 
 
+//display city current weather - fetch data from passed lat/lon, create elements, append them to
+function displayWeather(lat, lon){
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0&units=imperial`
+    fetch(url).then(function (response){
+        if(response.ok){
+            response.json().then(function (data){
+                currentDisplay.empty();
+                const weatherCard = $('<div>');
+                const cityName = $('<h2>');
+                const curDate = dayjs().format("M/DD/YYYY");
+                const weatherIcon = $('<img>');
+                weatherIcon.attr('src', `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`);
+                cityName.text(data.name + " (" + curDate + ")");
+                cityName.append(weatherIcon);
+                const curTemp = $('<p>');
+                curTemp.text("Temp: " + data.main.temp + " °F")
+                const curWind = $('<p>');
+                curWind.text("Wind: " + data.wind.speed + " MPH");
+                const curHumidity = $('<p>');
+                curHumidity.text("Humidity: " + data.main.humidity + " %");
 
+                weatherCard.append(cityName, curTemp, curWind, curHumidity);
+                currentDisplay.append(weatherCard);
+            });
+        }
+    });
+}
 
-//display city current weather
 //display city 5 day forecast
+function displayForecast(lat, lon){
+    const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0&units=imperial`
+    fetch(url).then(function (response){
+        if(response.ok){
+            response.json().then(function (data){
+                let dayOffset = 0;
+                forecastDisplay.empty();
+                for(i = 0; i < 5; i++){
+                    const forecastCard = $('<div>');
+                    forecastCard.attr('class', 'col-2 bg-secondary text-white text-center border border-light rounded');
+                    const forecastDate = $('<p>');
+                    forecastDate.text(dayjs().add(i + 1, 'day').format("M/DD/YYYY"));
+                    const weatherIcon = $('<img>');
+                    weatherIcon.attr('src', `https://openweathermap.org/img/wn/${data.list[dayOffset].weather[0].icon}@2x.png`);
+                    const forecastTemp = $('<p>');
+                    forecastTemp.text("Temp: " + data.list[dayOffset].main.temp + " °F")
+                    const forecastWind = $('<p>');
+                    forecastWind.text("Wind: " + data.list[dayOffset].wind.speed + " MPH");
+                    const forecastHumidity = $('<p>');
+                    forecastHumidity.text("Humidity: " + data.list[dayOffset].main.humidity + " %");
+                    dayOffset = dayOffset + 8;
 
+                    forecastCard.append(forecastDate, weatherIcon, forecastTemp, forecastWind, forecastHumidity);
+                    forecastDisplay.append(forecastCard);
+                }
+            });
+        }
+    });
+}
 
-//event listener for city-history element / delegate to parent, on city click / call displayWeather
-
+//event listener for form submit
 cityForm.on('submit', handleFormSubmit);
+
+//event listener for city-history element / delegate to parent, on city click / call displayWeather+displayForecast
+cityHistory.on('click', '.city-card', function(){
+    cityID = $(this).attr('data-id');
+    savedCities = getCities();
+    currentDisplay.empty();
+    forecastDisplay.empty();
+    displayWeather(savedCities[cityID].lat, savedCities[cityID].lon);
+    displayForecast(savedCities[cityID].lat, savedCities[cityID].lon);
+});
+
+//on page load call displayCity
+window.onload = displayCities;
