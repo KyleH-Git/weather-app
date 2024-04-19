@@ -9,10 +9,11 @@ const forecastDisplay = $('#weather-forecast');
 function handleFormSubmit(event){
     event.preventDefault();
     const cityName = cityInput.val().trim();
+    if(cityName === ""){
+        return;
+    }
     cityInput.val("");
-
     const url = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=5&appid=26e6654053a3f70f24251088f54026d0`
-
     fetch(url).then(function (response){
         if(response.ok){
             response.json().then(function (data){
@@ -55,7 +56,7 @@ function displayCities(){
     const tempCities = getCities();
     tempCities.forEach((city, i) => {
         const cityCard = $('<div>');
-        cityCard.attr('class', 'city-card text-align-center');
+        cityCard.attr('class', 'city-card bg-secondary text-white text-center border border-light rounded');
         cityCard.attr('data-id', i);
         cityCard.text(city.name);
         cityHistory.append(cityCard);
@@ -66,7 +67,7 @@ function displayCities(){
 //logic to check weather and use correct icon on card during creation
 
 
-//display city current weather
+//display city current weather - fetch data from passed lat/lon, create elements, append them to
 function displayWeather(lat, lon){
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0&units=imperial`
     fetch(url).then(function (response){
@@ -104,6 +105,7 @@ function displayForecast(lat, lon){
                 forecastDisplay.empty();
                 for(i = 0; i < 5; i++){
                     const forecastCard = $('<div>');
+                    forecastCard.attr('class', 'col-2 bg-secondary text-white text-center border border-light rounded');
                     const forecastDate = $('<p>');
                     forecastDate.text(dayjs().add(i + 1, 'day').format("M/DD/YYYY"));
                     const weatherIcon = $('<img>');

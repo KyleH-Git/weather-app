@@ -1,11 +1,11 @@
-body{
-    background-color: gray;
-}
-#left-side{
-    width: 20%;
-    display: inline-block;
+.no-gutters {
+    margin-right: 0;
+    margin-left: 0;
+  
+    > .col,
+    > [class*="col-"] {
+      padding-right: 0;
+      padding-left: 0;
+    }
 }
 
-#right-side{
-   display: inline-block;
-}

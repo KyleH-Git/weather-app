@@ -10,25 +10,32 @@
   </head>
 
   <body>
-    <header>
+    <header class="bg-dark text-white text-center">
         <h1>Weather Dashboard</h1>
     </header>
 
     <main>
-        <div id="left-side">
-            <form id="city-form">
-                <label for="city-input" class="form-label">Search for a City:</label>
-                <input type="text" class="form-control" id="city-input">
+        <div class="row no-gutters">
+            <div id="left-side" class="col-2">
+                <form id="city-form">
+                    <label for="city-input" class="form-label">Search for a City:</label>
+                    <input type="text" class="form-control" id="city-input">
 
-                <button id="form-submit" type="submit" class="btn btn-primary">Submit</button>
-            </form>
-            <div id="city-history">city history</div>
-        </div>
+                    <button id="form-submit" type="submit" class="btn btn-primary">Search</button>
+                </form>
+                <aside>
+                    <p>City History</p>
+                    <div id="city-history"></div>
+                </aside>
+            </div>
 
-        <div id="right-side">
-            <div id="weather-current">current weather</div>
-            <div id="weather-forecast">weather forecast</div>
-        </div>
+            <div id="right-side" class="col-10">
+                <p>Current Weather</p>
+                <div id="weather-current"></div>
+                <p>Weather Forecast</p>
+                <div id="weather-forecast" class="row no-gutters"></div>
+            </div>
+        </row>
     </main>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
