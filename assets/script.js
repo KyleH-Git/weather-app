@@ -13,7 +13,7 @@ function handleFormSubmit(event){
         return;
     }
     cityInput.val("");
-    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=5&appid=26e6654053a3f70f24251088f54026d0`
+    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=5&appid=26e6654053a3f70f24251088f54026d0`
     fetch(url).then(function (response){
         if(response.ok){
             response.json().then(function (data){
@@ -69,7 +69,7 @@ function displayCities(){
 
 //display city current weather - fetch data from passed lat/lon, create elements, append them to
 function displayWeather(lat, lon){
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0&units=imperial`
+    const url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0&units=imperial`
     fetch(url).then(function (response){
         if(response.ok){
             response.json().then(function (data){
@@ -97,7 +97,7 @@ function displayWeather(lat, lon){
 
 //display city 5 day forecast
 function displayForecast(lat, lon){
-    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0&units=imperial`
+    const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=26e6654053a3f70f24251088f54026d0&units=imperial`
     fetch(url).then(function (response){
         if(response.ok){
             response.json().then(function (data){
